@@ -1,19 +1,18 @@
 import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 import { UpdateUser, updateUserSchema } from "../dtos/UpdateUser.dto";
 import { User, userSchema } from "../models/user";
 import { UserRepository } from "../repositories/user";
-import { BadRequestException, InternalServerErrorException, NotFoundException } from "../utils/exception";
+import { BadRequestException, NotFoundException } from "../utils/exception";
 
 export interface UserService {
-    getUsers: () => Promise<User[]>
-    getUser: (id: string) => Promise<User>
-    getUserByUsername: (username: string) => Promise<User>
-    getUserByEmail: (email: string) => Promise<User>
-    getUserByRefreshToken: (refreshToken: string) => Promise<User>
-    createUser: (user: User) => Promise<User>
-    updateUser: (id: string, user: UpdateUser) => Promise<User>
-    deleteUser: (id: string) => Promise<boolean>
+    getUsers(): Promise<User[]>
+    getUser(id: string): Promise<User>
+    getUserByUsername(username: string): Promise<User>
+    getUserByEmail(email: string): Promise<User>
+    getUserByRefreshToken(refreshToken: string): Promise<User>
+    createUser(user: User): Promise<User>
+    updateUser(id: string, user: UpdateUser): Promise<User>
+    deleteUser(id: string): Promise<boolean>
 }
 
 export class UserServiceImpl implements UserService {
@@ -99,7 +98,7 @@ export class UserServiceImpl implements UserService {
         const userPayload = updateUserSchema.safeParse(user);
         if (!userPayload.success) {
             console.log(`error on user service update user: ${userPayload.error.message}`);
-            throw new Error(userPayload.error.message);
+            throw new BadRequestException(userPayload.error.message);
         }
         // pass the user data to the repository as query parameters
 
@@ -118,9 +117,6 @@ export class UserServiceImpl implements UserService {
         let paramIndex = 1;
 
         fields.forEach((field, index) => {
-            if (field === "refreshToken") {
-                field = "refresh_token";
-            }
             queryString += ` ${field} = $${paramIndex}`;
             updateParams.push(values[index]);
             paramIndex++;
@@ -138,7 +134,7 @@ export class UserServiceImpl implements UserService {
 
         try {
             const user = await this.userRepo.update(queryString, updateParams);
-            if (!user) throw new Error(`User with id ${id} not found`);
+            if (!user) throw new NotFoundException(`User with id ${id} not found`);
             console.log(`user`, user);
             return user;
         } catch (err) {

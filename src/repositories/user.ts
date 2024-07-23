@@ -2,14 +2,14 @@ import { Pool } from "pg";
 import { User } from "../models/user";
 
 export interface UserRepository {
-    findOne: (id: string) => Promise<User>
-    findByUsername: (username: string) => Promise<User>
-    findByEmail: (email: string) => Promise<User>
-    findByRefreshToken: (refreshToken: string) => Promise<User>
-    findAll: () => Promise<User[]>
-    create: (user: User) => Promise<User>
-    update: (queryString: string, updateParams: any[]) => Promise<User>
-    delete: (id: string) => Promise<boolean>
+    findOne(id: string): Promise<User>
+    findByUsername(username: string): Promise<User>
+    findByEmail(email: string): Promise<User>
+    findByRefreshToken(refreshToken: string): Promise<User>
+    findAll(): Promise<User[]>
+    create(user: User): Promise<User>
+    update(queryString: string, updateParams: any[]): Promise<User>
+    delete(id: string): Promise<boolean>
 }
 
 export class UserRepositoryDB implements UserRepository {
@@ -62,7 +62,7 @@ export class UserRepositoryDB implements UserRepository {
 
     async create(user: User): Promise<User> {
         try {
-            const { rows } = await this.db.query<User>("INSERT INTO users (id, username, email, password, refresh_token) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.id, user.username, user.email, user.password, user.refreshToken]);
+            const { rows } = await this.db.query<User>("INSERT INTO users (id, username, email, password, refresh_token) VALUES ($1, $2, $3, $4, $5) RETURNING *", [user.id, user.username, user.email, user.password, user.refresh_token]);
             return rows[0];
         } catch (err) {
             throw err;

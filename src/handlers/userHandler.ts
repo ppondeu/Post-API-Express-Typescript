@@ -6,6 +6,7 @@ import { UserService } from "../services/userService";
 import { handleError } from "../utils/errs";
 import { BadRequestException, NotFoundException } from "../utils/exception";
 import { updateUserSchema } from "../dtos/UpdateUser.dto";
+
 export class UserHandler {
     constructor(private readonly userSrv: UserService) { }
 

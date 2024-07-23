@@ -12,11 +12,11 @@ import { ACCESS_TOKEN_EXPIRES_IN, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_EXPIRES_IN,
 import { UserResponse } from "../dtos/UserResponse.dto";
 
 export interface AuthService {
-    register: (createUser: CreateUser) => Promise<AuthResponse>
-    login: (loginData: LoginDTO) => Promise<AuthResponse>
-    logout: (refreshToken: string) => Promise<boolean>
-    refreshToken: (refreshToken: string) => Promise<AuthResponse>
-    fetchMe: (id: string) => Promise<AuthResponse>
+    register(createUser: CreateUser): Promise<AuthResponse>
+    login(loginData: LoginDTO): Promise<AuthResponse>
+    logout(refreshToken: string): Promise<boolean>
+    refreshToken(refreshToken: string): Promise<AuthResponse>
+    fetchMe(id: string): Promise<AuthResponse>
 }
 
 export class AuthServiceImpl implements AuthService {
@@ -29,11 +29,11 @@ export class AuthServiceImpl implements AuthService {
         try {
             console.log("createUser", createUser)
             const userId = uuidv4();
-            const refreshToken = this.jwtSrv.generateToken({ sub: userId }, REFRESH_TOKEN_SECRET!, REFRESH_TOKEN_EXPIRES_IN!);
+            const refresh_token = this.jwtSrv.generateToken({ sub: userId }, REFRESH_TOKEN_SECRET!, REFRESH_TOKEN_EXPIRES_IN!);
             const hashedPassword = await this.hashPassword(createUser.password);
-            const userRaw = { ...createUser, id: userId, password: hashedPassword, refreshToken };
+            const userRaw = { ...createUser, id: userId, password: hashedPassword, refresh_token };
             const user = await this.userSrv.createUser(userRaw)
-            const accessToken = this.jwtSrv.generateToken({ sub: userId }, ACCESS_TOKEN_SECRET!, ACCESS_TOKEN_EXPIRES_IN!);
+            const access_token = this.jwtSrv.generateToken({ sub: userId }, ACCESS_TOKEN_SECRET!, ACCESS_TOKEN_EXPIRES_IN!);
 
             const userResponse: UserResponse = {
                 id: user.id,
@@ -42,7 +42,7 @@ export class AuthServiceImpl implements AuthService {
             }
 
             return {
-                user: userResponse, token: { accessToken, refreshToken }
+                user: userResponse, token: { access_token, refresh_token }
             }
         } catch (err) {
             console.log(`error on auth service register: ${err}`);
@@ -61,7 +61,7 @@ export class AuthServiceImpl implements AuthService {
             const userId = user.id;
             const accessToken = this.jwtSrv.generateToken({ sub: userId }, ACCESS_TOKEN_SECRET!, ACCESS_TOKEN_EXPIRES_IN!);
             const refreshToken = this.jwtSrv.generateToken({ sub: userId }, REFRESH_TOKEN_SECRET!, REFRESH_TOKEN_EXPIRES_IN!);
-            user = await this.userSrv.updateUser(userId, { refreshToken });
+            user = await this.userSrv.updateUser(userId, { refresh_token: refreshToken });
             if (!user) throw new NotFoundException("User not found");
 
             const userResponse: UserResponse = {
@@ -71,7 +71,7 @@ export class AuthServiceImpl implements AuthService {
             }
 
             return {
-                user: userResponse, token: { accessToken, refreshToken }
+                user: userResponse, token: { access_token: accessToken, refresh_token: refreshToken }
             }
         } catch (err) {
             console.log(`error on auth service login: ${err}`);
@@ -85,7 +85,7 @@ export class AuthServiceImpl implements AuthService {
             const user = await this.userSrv.getUserByRefreshToken(refreshToken);
             if (!user) throw new ForbiddenException();
             const userId = user.id;
-            const ok = await this.userSrv.updateUser(userId, { refreshToken: null });
+            const ok = await this.userSrv.updateUser(userId, { refresh_token: null });
             if (!ok) throw new ForbiddenException();
         } catch (err) {
             console.log(`error on auth service logout: ${err}`);
@@ -113,7 +113,7 @@ export class AuthServiceImpl implements AuthService {
                 username: user.username,
                 email: user.email,
             }
-            return { user: userResp, token: { accessToken } }
+            return { user: userResp, token: { access_token: accessToken } }
         } catch (err) {
             console.log(`error on auth service refresh token: ${err}`);
             throw err;

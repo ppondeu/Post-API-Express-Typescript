@@ -3,8 +3,8 @@ import jwt, { TokenExpiredError, JsonWebTokenError, JwtPayload } from "jsonwebto
 import { UnauthorizedException } from "../utils/exception";
 
 export interface JwtService {
-    generateToken: (payload: { sub: string }, secret: string, expiredIn: string) => string
-    verifyToken: (token: string, secret: string) => JwtPayload
+    generateToken(payload: { sub: string }, secret: string, expiredIn: string): string
+    verifyToken(token: string, secret: string): JwtPayload
 }
 
 export class JwtServiceImpl implements JwtService {

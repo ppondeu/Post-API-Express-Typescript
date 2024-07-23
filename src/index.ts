@@ -13,6 +13,9 @@ import { JwtServiceImpl } from "./services/jwtService";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { notFoundMiddleware } from "./middleware/404";
 import { AuthHandler } from "./handlers/authHandler";
+import { PostRepositoryDB } from "./repositories/post";
+import { PostServiceImpl } from "./services/postService";
+import { PostHandler } from "./handlers/postHandler";
 
 const app = express();
 
@@ -55,9 +58,21 @@ authRouter.post("/logout", authHndr.logout.bind(authHndr));
 authRouter.post("/refresh-token", authHndr.refreshToken.bind(authHndr));
 authRouter.get("/me", verifyToken, authHndr.fetchMe.bind(authHndr));
 
+const postRepo = new PostRepositoryDB(pool);
+const postSrv = new PostServiceImpl(postRepo);
+const postHandler = new PostHandler(postSrv);
+
+// post routes
+const postRouter = express.Router();
+postRouter.get("/", postHandler.getPosts.bind(postHandler));
+postRouter.get("/:id", postHandler.getPost.bind(postHandler));
+postRouter.post("/", postHandler.createPost.bind(postHandler));
+postRouter.put("/:id", postHandler.updatePost.bind(postHandler));
+postRouter.delete("/:id", postHandler.deletePost.bind(postHandler));
+
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
-
+app.use("/api/posts", postRouter);
 // handle 404
 app.use(notFoundMiddleware);
 

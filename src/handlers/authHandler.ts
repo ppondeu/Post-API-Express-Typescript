@@ -19,9 +19,9 @@ export class AuthHandler {
 
         try {
             const authResponse = await this.authSrv.login(loginPayload.data);
-            if (!authResponse.token?.accessToken || !authResponse.token?.refreshToken) return next(new ForbiddenException("Access token not found"));
-            res.cookie("accessToken", authResponse.token.accessToken, { httpOnly: true, maxAge: 1000 * 60 });
-            res.cookie("refreshToken", authResponse.token.refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+            if (!authResponse.token?.access_token || !authResponse.token?.refresh_token) return next(new ForbiddenException("Access token not found"));
+            res.cookie("accessToken", authResponse.token.access_token, { httpOnly: true, maxAge: 1000 * 60 });
+            res.cookie("refreshToken", authResponse.token.refresh_token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
 
 
             return res.status(200).json({ success: true, data: authResponse });
@@ -40,9 +40,9 @@ export class AuthHandler {
 
         try {
             const authResponse = await this.authSrv.register(registerPayload.data);
-            if (!authResponse.token?.accessToken || !authResponse.token?.refreshToken) return next(new ForbiddenException("Access token not found"));
-            res.cookie("accessToken", authResponse.token.accessToken, { httpOnly: true, maxAge: 1000 * 60 });
-            res.cookie("refreshToken", authResponse.token.refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+            if (!authResponse.token?.access_token || !authResponse.token?.refresh_token) return next(new ForbiddenException("Access token not found"));
+            res.cookie("accessToken", authResponse.token.access_token, { httpOnly: true, maxAge: 1000 * 60 });
+            res.cookie("refreshToken", authResponse.token.refresh_token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
             return res.status(201).json({ success: true, data: authResponse });
         } catch (err) {
             return next(err);
@@ -59,9 +59,9 @@ export class AuthHandler {
         try {
             const ok = await this.authSrv.logout(refreshToken);
             if (!ok) return next(new ForbiddenException("Logout failed"));
-            return res.status(200).json({ success: true, data: "Logged out successfully" });
+            res.status(200).json({ success: true, data: "Logged out successfully" });
         } catch (err) {
-            return next(err);
+            next(err);
         }
     }
 
@@ -81,12 +81,12 @@ export class AuthHandler {
         try {
             const authResponse = await this.authSrv.refreshToken(tokenPayload.data);
             console.log("authResponse", authResponse)
-            if (!authResponse.token?.accessToken) return next(new ForbiddenException("Access token not found"));
-            res.cookie("accessToken", authResponse.token.accessToken, { httpOnly: true, maxAge: 1000 * 60 });
-            return res.status(200).json({ success: true, data: authResponse });
+            if (!authResponse.token?.access_token) return next(new ForbiddenException("Access token not found"));
+            res.cookie("accessToken", authResponse.token.access_token, { httpOnly: true, maxAge: 1000 * 60 });
+            res.status(200).json({ success: true, data: authResponse });
         } catch (err) {
             res.clearCookie("refreshToken");
-            return next(err);
+            next(err);
         }
     }
 
@@ -97,9 +97,9 @@ export class AuthHandler {
         try {
             const user = await this.authSrv.fetchMe(userId);
             if (!user) return next(new Error("User not found"));
-            return res.status(200).json({ success: true, data: user });
+            res.status(200).json({ success: true, data: user });
         } catch (err) {
-            return next(err);
+            next(err);
         }
     }
 }
