@@ -50,4 +50,4 @@
         - db
 
     volumes:
-    db_data:
+        db_data:
