@@ -4,6 +4,7 @@ import { ID } from "../dtos/Id.dto";
 
 export interface PostRepository {
     findAll(): Promise<Post[]>;
+    findAllByAuthorId(author_id: ID): Promise<Post[]>;
     findOne(id: ID): Promise<Post | null>;
     create(post: Post): Promise<Post>;
     update(queryString: string, updateParams: any[]): Promise<Post | null>
@@ -15,6 +16,11 @@ export class PostRepositoryDB implements PostRepository {
 
     async findAll(): Promise<Post[]> {
         const { rows } = await this.db.query<Post>("SELECT posts.id, posts.content, posts.created_at, posts.updated_at, users.id as author_id, users.username as author_username FROM posts JOIN users ON posts.author_id = users.id");
+        return rows;
+    }
+
+    async findAllByAuthorId(author_id: ID): Promise<Post[]> {
+        const { rows } = await this.db.query<Post>("SELECT posts.id, posts.content, posts.created_at, posts.updated_at, users.id as author_id, users.username as author_username FROM posts JOIN users ON posts.author_id = users.id WHERE author_id = $1", [author_id]);
         return rows;
     }
 

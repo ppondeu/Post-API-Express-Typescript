@@ -5,7 +5,7 @@ import { Post } from "../models/post";
 import { ID, idSchema } from "../dtos/Id.dto";
 import { BadRequestException } from "../utils/exception";
 import { createPostSchema } from "../dtos/CreatePost.dto";
-import { updatePostSchema } from "../dtos/UpdatePost.dto";
+import { UpdatePost } from "../dtos/UpdatePost.dto";
 
 export class PostHandler {
     constructor(private readonly postSrv: PostService) { }
@@ -19,12 +19,28 @@ export class PostHandler {
         }
     }
 
+    async getCurrentUserPosts(req: Request, res: Response<ApiResponse<Post[]>>, next: NextFunction) {
+        const idValidate = idSchema.safeParse(req.userID);
+        if (!idValidate.success) {
+            console.log("error on post handler getCurrentUserPosts id is not valid");
+            return next(new BadRequestException("id is not valid"));
+        }
+
+        try {
+            const posts = await this.postSrv.getCurrentUserPosts(idValidate.data);
+            res.json({ success: true, data: posts });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     async getPost(req: Request<{ id: string }>, res: Response<ApiResponse<Post>>, next: NextFunction) {
         const idValidate = idSchema.safeParse(req.params.id);
         if (!idValidate.success) {
             console.log("error on post handler getPost id is not valid");
             return next(new BadRequestException("id is not valid"));
         }
+
         try {
             const post = await this.postSrv.getPost(idValidate.data);
             res.json({ success: true, data: post })
@@ -61,7 +77,7 @@ export class PostHandler {
             return next(new BadRequestException("id is not valid"));
         }
 
-        const updatePost = {
+        const updatePost: UpdatePost = {
             content: req.body.content,
             updated_at: new Date().toISOString()
         }
@@ -82,7 +98,7 @@ export class PostHandler {
         }
 
         try {
-            const ok = await this.postSrv.deletePost(idValidate.data);
+            const _ = await this.postSrv.deletePost(idValidate.data);
             res.json({ success: true, message: "delete successfully" })
         } catch (err) {
             next(err);

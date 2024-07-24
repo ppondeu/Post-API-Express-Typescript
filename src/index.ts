@@ -26,12 +26,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
-    res.send("Hello, World!");
-});
-
-app.get("/ping", (_req: Request, res: Response, _next: NextFunction) => {
-    res.send("pong");
+app.get("/checkpoint", (_req: Request, res: Response, _next: NextFunction) => {
+    res.status(200);
 });
 
 // user routes
@@ -41,10 +37,12 @@ const userHandler = new UserHandler(userSrv);
 
 const userRouter = express.Router();
 userRouter.get("/", userHandler.getUsers.bind(userHandler));
-userRouter.get("/:id", userHandler.getUser.bind(userHandler));
 userRouter.get("/username/:username", userHandler.getUserByUsername.bind(userHandler));
-userRouter.put("/", verifyToken, userHandler.updateUser.bind(userHandler));
+userRouter.put("/:id", userHandler.updateUserByParam.bind(userHandler));
 userRouter.delete("/:id", userHandler.deleteUser.bind(userHandler));
+userRouter.get("/me", verifyToken, userHandler.getCurrentUser.bind(userHandler));
+userRouter.get("/:id", userHandler.getUser.bind(userHandler));
+userRouter.put("/me", verifyToken, userHandler.updateCurrentUser.bind(userHandler));
 
 const jwtSrv = new JwtServiceImpl()
 const authSrv = new AuthServiceImpl(userSrv, jwtSrv)
@@ -69,6 +67,7 @@ postRouter.get("/:id", postHandler.getPost.bind(postHandler));
 postRouter.post("/", postHandler.createPost.bind(postHandler));
 postRouter.put("/:id", postHandler.updatePost.bind(postHandler));
 postRouter.delete("/:id", postHandler.deletePost.bind(postHandler));
+postRouter.get("/me", postHandler.getCurrentUserPosts.bind(postHandler));
 
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);

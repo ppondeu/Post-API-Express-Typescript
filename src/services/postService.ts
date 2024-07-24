@@ -10,6 +10,7 @@ import { objectTo } from "../utils/objectTo";
 
 export interface PostService {
     getPosts(): Promise<Post[]>
+    getCurrentUserPosts(id: ID): Promise<Post[]>
     getPost(id: ID): Promise<Post>
     createPost(author_id: ID, createPost: CreatePost): Promise<Post>
     updatePost(id: ID, post: UpdatePost): Promise<Post>
@@ -26,6 +27,21 @@ export class PostServiceImpl implements PostService {
         } catch (err) {
             console.log("error on post service getPosts");
             throw new InternalServerErrorException()
+        }
+    }
+
+    async getCurrentUserPosts(id: ID): Promise<Post[]> {
+        const idValidate = idSchema.safeParse(id)
+        if (!idValidate.success) {
+            console.log("error on post service getCurrentUserPosts by id");
+            throw new BadRequestException(idValidate.error.message);
+        }
+        try {
+            const posts = await this.postRepo.findAllByAuthorId(idValidate.data);
+            return posts;
+        } catch (err) {
+            console.log("error on post service getCurrentUserPosts", err);
+            throw err;
         }
     }
 
