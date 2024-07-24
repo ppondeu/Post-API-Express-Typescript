@@ -1,3 +1,3 @@
-# express + typescript authentication
+# express + typescript + pg
 
-### authentication with access token and refresh token
+### post api with authentication

@@ -49,26 +49,28 @@ export class PostServiceImpl implements PostService {
         }
 
         const newId = uuidv4();
-        const createdAt = new Date().toUTCString();
+        const createdAt = new Date().toISOString();
         const newPost: Post = {
             id: newId,
-            content: createPostValidate.data.content,
             author_id,
+            content: createPostValidate.data.content,
             created_at: createdAt,
             updated_at: createdAt,
         }
 
         const newPostValidate = postSchema.safeParse(newPost)
         if (!newPostValidate.success) {
-            console.log(`error on user service create user: ${newPostValidate.error.message}`);
+            console.log(newPost);
+            console.log(`error on post service create post: ${newPostValidate.error.message}`);
             throw new BadRequestException(newPostValidate.error.message)
         }
 
         try {
             const createdPost = await this.postRepo.create(newPostValidate.data)
+            console.log("createdPost", createdPost)
             return createdPost;
         } catch (err) {
-            console.log("error on post service createPost")
+            console.log("error on post service createPost", err)
             throw new InternalServerErrorException()
         }
     }

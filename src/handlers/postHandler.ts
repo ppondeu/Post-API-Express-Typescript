@@ -4,7 +4,7 @@ import { ApiResponse } from "../dtos/ApiResponse.dto";
 import { Post } from "../models/post";
 import { ID, idSchema } from "../dtos/Id.dto";
 import { BadRequestException } from "../utils/exception";
-import { CreatePost, createPostSchema } from "../dtos/CreatePost.dto";
+import { createPostSchema } from "../dtos/CreatePost.dto";
 import { updatePostSchema } from "../dtos/UpdatePost.dto";
 
 export class PostHandler {
@@ -33,8 +33,8 @@ export class PostHandler {
         }
     }
 
-    async createPost(req: Request, res: Response, next: NextFunction) {
-        const idValidate = idSchema.safeParse(req.params.id);
+    async createPost(req: Request, res: Response<ApiResponse<Post>>, next: NextFunction) {
+        const idValidate = idSchema.safeParse(req.userID);
         if (!idValidate.success) {
             console.log("error on post handler getPost id is not valid");
             return next(new BadRequestException("id is not valid"));
@@ -47,14 +47,14 @@ export class PostHandler {
         }
 
         try {
-            const createdPost = this.postSrv.createPost(idValidate.data, createPostValidate.data);
-            res.status(201).json({ success: true, data: createdPost })
+            const createdPost = await this.postSrv.createPost(idValidate.data, createPostValidate.data);
+            res.status(201).json({ success: true, data: createdPost });
         } catch (err) {
             next(err);
         }
     }
 
-    async updatePost(req: Request, res: Response<ApiResponse<Post>>, next: NextFunction) {
+    async updatePost(req: Request<{ id: ID }>, res: Response<ApiResponse<Post>>, next: NextFunction) {
         const idValidate = idSchema.safeParse(req.params.id);
         if (!idValidate.success) {
             console.log("error on post handler getPost id is not valid");

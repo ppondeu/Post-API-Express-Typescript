@@ -2,10 +2,10 @@ import express from "express";
 import { Request, Response, NextFunction } from "express-serve-static-core"
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { SERVER_PORT } from "./config/config";
 import verifyToken from "./middleware/verifyToken";
-import { UserServiceImpl } from "./services/userService";
 import pool from "./config/db";
+import { SERVER_PORT } from "./config/config";
+import { UserServiceImpl } from "./services/userService";
 import { UserRepositoryDB } from "./repositories/user";
 import { UserHandler } from "./handlers/userHandler";
 import { AuthServiceImpl } from "./services/authService";
@@ -72,7 +72,7 @@ postRouter.delete("/:id", postHandler.deletePost.bind(postHandler));
 
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/posts", postRouter);
+app.use("/api/posts", verifyToken, postRouter);
 // handle 404
 app.use(notFoundMiddleware);
 
