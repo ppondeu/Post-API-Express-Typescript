@@ -5,10 +5,15 @@
 ##### API routes
 - ###### Auth
     **POST /api/auth/register** create new user
+  
     **POST /api/auth/login** log user in
+  
     **POST /api/auth/logout** log user out
+  
     **POST /api/auth/refresh-token** fetch refresh token
+  
     **GET /api/auth/me** get current user with verify token
+  
 
 - ###### User
     **GET /api/users** get all users
