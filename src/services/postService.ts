@@ -76,7 +76,6 @@ export class PostServiceImpl implements PostService {
     }
 
     async updatePost(id: ID, updatePost: UpdatePost): Promise<Post> {
-        updatePost.updated_at = new Date().toUTCString();
         const updatePostValidate = updatePostSchema.safeParse(updatePost)
         if (!updatePostValidate.success) {
             console.log("error on post service updatePost by id");

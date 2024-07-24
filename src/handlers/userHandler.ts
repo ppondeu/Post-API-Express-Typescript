@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { z } from "zod";
+import bcrypt from "bcrypt";
 import { ApiResponse } from "../dtos/ApiResponse.dto";
 import { UserResponse } from "../dtos/UserResponse.dto";
 import { UserService } from "../services/userService";
 import { handleError } from "../utils/errs";
 import { BadRequestException, NotFoundException } from "../utils/exception";
 import { updateUserSchema } from "../dtos/UpdateUser.dto";
+import { SALT_ROUNDS } from "../config/config";
 
 export class UserHandler {
     constructor(private readonly userSrv: UserService) { }
@@ -77,7 +79,7 @@ export class UserHandler {
 
     async updateUser(req: Request, res: Response<ApiResponse<UserResponse>>, next: NextFunction): Promise<any> {
         const userIdSchema = z.string().uuid("id is not a valid uuid");
-        const idPayload = userIdSchema.safeParse(req.params.id);
+        const idPayload = userIdSchema.safeParse(req.userID);
         if (!idPayload.success) {
             console.log("error on user handler update user", idPayload.error.errors[0].message);
             return next(new BadRequestException(idPayload.error.errors[0].message));
@@ -90,6 +92,10 @@ export class UserHandler {
         }
 
         const updateData = updateUserPayload.data;
+        if (updateData.password) {
+            const hashedPassword = await bcrypt.hash(updateData.password, SALT_ROUNDS);
+            updateData.password = hashedPassword;
+        }
 
         try {
             const user = await this.userSrv.updateUser(idPayload.data, updateData);

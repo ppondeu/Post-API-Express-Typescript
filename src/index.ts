@@ -43,7 +43,7 @@ const userRouter = express.Router();
 userRouter.get("/", userHandler.getUsers.bind(userHandler));
 userRouter.get("/:id", userHandler.getUser.bind(userHandler));
 userRouter.get("/username/:username", userHandler.getUserByUsername.bind(userHandler));
-userRouter.put("/:id", userHandler.updateUser.bind(userHandler));
+userRouter.put("/", verifyToken, userHandler.updateUser.bind(userHandler));
 userRouter.delete("/:id", userHandler.deleteUser.bind(userHandler));
 
 const jwtSrv = new JwtServiceImpl()

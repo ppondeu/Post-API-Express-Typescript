@@ -54,21 +54,20 @@ export class PostHandler {
         }
     }
 
-    async updatePost(req: Request<{ id: ID }>, res: Response<ApiResponse<Post>>, next: NextFunction) {
+    async updatePost(req: Request<{ id: ID }, {}, { content: string }>, res: Response<ApiResponse<Post>>, next: NextFunction) {
         const idValidate = idSchema.safeParse(req.params.id);
         if (!idValidate.success) {
-            console.log("error on post handler getPost id is not valid");
+            console.log("error on post handler updatePost id is not valid");
             return next(new BadRequestException("id is not valid"));
         }
 
-        const updatePostValidate = updatePostSchema.safeParse(req.body);
-        if (!updatePostValidate.success) {
-            console.log("error on post handler updatePost", updatePostValidate.error.message);
-            return next(new BadRequestException(updatePostValidate.error.message))
+        const updatePost = {
+            content: req.body.content,
+            updated_at: new Date().toISOString()
         }
 
         try {
-            const updatedPost = await this.postSrv.updatePost(idValidate.data, updatePostValidate.data);
+            const updatedPost = await this.postSrv.updatePost(idValidate.data, updatePost);
             res.json({ success: true, data: updatedPost });
         } catch (err) {
             next(err);
