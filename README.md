@@ -17,22 +17,33 @@
 
 - ###### User
     **GET /api/users** get all users
+  
     **GET /api/users/:id** get user by id
+  
     **GET /api/users/username/:username** get user by username
+  
     **PUT /api/users/:id** update user by id
+  
     **DELETE /api/users/:id** delete user by id
+  
     **GET /api/users/me** get current user
+  
     **PUT /api/users/me** update current user
 
 - ###### Post
     **GET /api/posts** get all posts
+  
     **GET /api/posts/:id** get post by id
+  
     **POST /api/posts/:id** create post by user id
+  
     **PUT /api/posts/:id** update post by id
+  
     **DELETE /api/posts/:id** delete post by id
+  
     **GET /api/posts/me** get all posts by current user
+  
     **POST /api/posts/me** create post with current user
-    **PUT /api/posts/me** update post with current user
 
 ###### Create User table
     CREATE TABLE users (
